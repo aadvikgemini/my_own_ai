@@ -419,6 +419,9 @@ def test_web_ui_endpoint_serves_html_without_secrets() -> None:
     assert res.status_code == 200
     assert "text/html" in res.headers.get("content-type", "")
     assert "Mini AI Assistant" in res.text
+    assert "Your personal AI assistant" in res.text
+    assert "Explain a concept in simple terms." in res.text
+    assert "0 / 20 questions" in res.text
     assert "test-only-dummy-token" not in res.text
     assert "OPENAI_API_KEY" not in res.text
 
@@ -483,6 +486,144 @@ def test_groq_base_url_auto_detection_from_env(monkeypatch) -> None:
     settings = load_settings(load_env_file=False)
     assert settings.openai_base_url == DEFAULT_GROQ_BASE_URL
     assert settings.openai_model == DEFAULT_GROQ_MODEL
+
+
+def test_streamlit_ui_full_conversation_limit_and_error_flows(monkeypatch) -> None:
+    """Exercise redesigned Streamlit UI against real FastAPI backend with mocked OpenAI."""
+    from pathlib import Path
+    from streamlit.testing.v1 import AppTest
+
+    app_path = str(Path(__file__).resolve().parent.parent / "app.py")
+    fake = FakeOpenAIClient(reply="Here is a **clear** markdown answer.\n```python\nprint('hi')\n```")
+    api_client, _ = make_test_client(fake_openai=fake)
+
+    class _ASGITransportClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def get(self, url: str, **kwargs):
+            path = httpx.URL(url).path
+            return api_client.get(path, **kwargs)
+
+        def post(self, url: str, **kwargs):
+            path = httpx.URL(url).path
+            return api_client.post(path, **kwargs)
+
+    monkeypatch.setattr(httpx, "Client", _ASGITransportClient)
+
+    at = AppTest.from_file(app_path, default_timeout=15)
+    at.run()
+    assert not at.exception
+    markdown_blob = "\n".join(m.value for m in at.markdown)
+    assert "Mini AI Assistant" in markdown_blob
+    assert "Connected" in markdown_blob
+    assert "Your personal AI assistant" in markdown_blob
+    assert "0 / 20 questions" in markdown_blob
+    assert any(b.label == "Explain a concept in simple terms." for b in at.button)
+
+    # 1. Click example prompt button -> submits through FastAPI and updates counter.
+    example_btn = next(
+        b for b in at.button if b.label == "Explain a concept in simple terms."
+    )
+    example_btn.click().run()
+    # Two-step generation flow executes process_pending_prompt and reruns cleanly.
+    if at.session_state["is_generating"]:
+        at.run()
+    assert not at.exception
+    assert at.session_state["questions_used"] == 1
+    assert "1 / 20 questions" in "\n".join(m.value for m in at.markdown)
+    assert len(at.chat_message) == 2
+
+    # 2. Submit via st.chat_input -> preserves history and increments to 2 / 20.
+    at.chat_input[0].set_value("How do loops work?").run()
+    if at.session_state["is_generating"]:
+        at.run()
+    assert not at.exception
+    assert at.session_state["questions_used"] == 2
+    assert "2 / 20 questions" in "\n".join(m.value for m in at.markdown)
+    assert len(at.chat_message) == 4
+
+    # 3. Empty whitespace input rejected without consuming a question.
+    at.chat_input[0].set_value("   ").run()
+    assert any("Please enter a question" in e.value for e in at.error)
+    assert at.session_state["questions_used"] == 2
+
+    # 4. New Chat creates a fresh backend conversation ID and clears old history.
+    first_conv_id = at.session_state["conversation_id"]
+    new_chat_btn = next(b for b in at.button if b.label == "New Chat")
+    new_chat_btn.click().run()
+    assert at.session_state["conversation_id"] != first_conv_id
+    assert at.session_state["questions_used"] == 0
+    assert at.session_state["messages"] == []
+    assert "0 / 20 questions" in "\n".join(m.value for m in at.markdown)
+
+    # 5. Reach 20-question limit -> input disabled and Start New Chat offered.
+    for i in range(20):
+        at.chat_input[0].set_value(f"Question {i + 1}").run()
+        if at.session_state["is_generating"]:
+            at.run()
+    assert at.session_state["questions_used"] == 20
+    assert at.chat_input[0].disabled is True
+    assert any("20-question limit" in msg.value for msg in at.info)
+    assert any(b.label == "Start New Chat" for b in at.button)
+
+    # Reset via Start New Chat button at limit.
+    limit_new_btn = next(b for b in at.button if b.label == "Start New Chat")
+    limit_new_btn.click().run()
+    assert at.session_state["questions_used"] == 0
+    assert at.chat_input[0].disabled is False
+
+    # 6. Upstream API error shows friendly error + Retry button without faking reply.
+    fake.responses.side_effect = openai.APITimeoutError(
+        request=httpx.Request("POST", "https://api.openai.com/v1/responses")
+    )
+    at.chat_input[0].set_value("Will this timeout?").run()
+    if at.session_state["is_generating"]:
+        at.run()
+    assert at.session_state["questions_used"] == 0
+    assert at.session_state["messages"] == []
+    assert any("timed out" in e.value.lower() for e in at.error)
+    assert any(b.label == "Retry last question" for b in at.button)
+
+
+def test_streamlit_ui_backend_offline_state(monkeypatch) -> None:
+    """Verify Streamlit UI displays offline status cleanly when backend is unreachable."""
+    from pathlib import Path
+    from streamlit.testing.v1 import AppTest
+
+    app_path = str(Path(__file__).resolve().parent.parent / "app.py")
+
+    class _OfflineClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def get(self, url: str, **kwargs):
+            raise httpx.ConnectError("Connection refused")
+
+        def post(self, url: str, **kwargs):
+            raise httpx.ConnectError("Connection refused")
+
+    monkeypatch.setattr(httpx, "Client", _OfflineClient)
+
+    at = AppTest.from_file(app_path, default_timeout=15)
+    at.run()
+    assert not at.exception
+    assert "Backend offline" in "\n".join(m.value for m in at.markdown)
+    assert any("unavailable" in e.value.lower() for e in at.error)
+    assert at.chat_input[0].disabled is True
+
 
 
 

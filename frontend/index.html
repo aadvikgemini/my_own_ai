@@ -7,197 +7,296 @@
   <style>
     :root {
       color-scheme: dark;
-      --bg: #0e1117;
-      --surface: #161b22;
-      --surface-elevated: #1c2330;
-      --border: #30363d;
-      --text: #e6edf3;
-      --muted: #9da7b3;
-      --accent: #58a6ff;
-      --accent-soft: rgba(88, 166, 255, 0.14);
-      --user-bg: #1f2a3c;
-      --assistant-bg: #161b22;
-      --warning: #ffa657;
-      --warning-bg: #231a10;
-      --error: #ff7b72;
-      --error-bg: #2a1416;
+      --bg-app: #0b0e14;
+      --bg-surface: #121721;
+      --bg-elevated: #171d29;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border-subtle: rgba(148, 163, 184, 0.16);
+      --ok-dot: #34d399;
+      --ok-text: #a7f3d0;
+      --ok-border: rgba(52, 211, 153, 0.25);
+      --warn-dot: #f59e0b;
+      --warn-text: #fcd34d;
+      --warn-border: rgba(245, 158, 11, 0.28);
+      --error-bg: rgba(239, 68, 68, 0.1);
+      --error-border: rgba(248, 113, 113, 0.3);
+      --error-text: #fca5a5;
+      --info-bg: rgba(56, 189, 248, 0.08);
+      --info-border: rgba(56, 189, 248, 0.25);
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html,
     body {
       margin: 0;
+      padding: 0;
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    body {
       min-height: 100vh;
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       display: flex;
       justify-content: center;
     }
 
     .app-shell {
       width: 100%;
-      max-width: 800px;
+      max-width: 780px;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      padding: 20px 16px 16px;
-      gap: 14px;
+      padding: 18px 16px 16px;
     }
 
-    .header-card {
-      background: linear-gradient(135deg, var(--surface) 0%, var(--surface-elevated) 100%);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px 20px;
-    }
-
-    .header-card h1 {
-      margin: 0;
-      font-size: 1.65rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: #f0f6fc;
-    }
-
-    .header-card p {
-      margin: 6px 0 0;
-      font-size: 0.94rem;
-      color: var(--muted);
-      line-height: 1.45;
-    }
-
-    .toolbar {
+    /* Compact Header */
+    .top-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-subtle);
       flex-wrap: wrap;
     }
 
-    .counter-pill {
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background-color: var(--bg-elevated);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--accent);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background-color: var(--surface);
-      border: 1px solid var(--border);
-      color: #79c0ff;
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: 1rem;
+      font-weight: 700;
+      flex-shrink: 0;
     }
 
-    .counter-pill.limit-reached {
-      color: var(--warning);
-      background-color: var(--warning-bg);
-      border-color: #6e4621;
+    .brand-title {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 500;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      display: inline-block;
+      background-color: var(--warn-dot);
+    }
+
+    .status-badge.online {
+      color: var(--ok-text);
+      border-color: var(--ok-border);
+    }
+
+    .status-badge.online .status-dot {
+      background-color: var(--ok-dot);
+    }
+
+    .status-badge.offline {
+      color: var(--warn-text);
+      border-color: var(--warn-border);
     }
 
     .btn {
       appearance: none;
-      border: 1px solid var(--border);
-      background-color: #21262d;
-      color: #f0f6fc;
+      background-color: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
       border-radius: 10px;
-      padding: 9px 16px;
-      font-size: 0.92rem;
-      font-weight: 600;
+      padding: 8px 14px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      font-family: inherit;
       cursor: pointer;
-      transition: background-color 0.15s ease, border-color 0.15s ease;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
     }
 
     .btn:hover:not(:disabled) {
-      background-color: #30363d;
+      background-color: #1e2636;
       border-color: var(--accent);
+      color: #ffffff;
     }
 
     .btn:disabled {
-      opacity: 0.55;
+      opacity: 0.5;
       cursor: not-allowed;
     }
 
     .btn-primary {
-      background-color: #1f6feb;
-      border-color: #388bfd;
-      color: #ffffff;
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #0b0e14;
+      font-weight: 600;
+      padding: 10px 18px;
     }
 
     .btn-primary:hover:not(:disabled) {
-      background-color: #388bfd;
-      border-color: #58a6ff;
+      background-color: var(--accent-hover);
+      border-color: var(--accent-hover);
+      color: #0b0e14;
     }
 
-    .banner {
-      display: none;
-      padding: 12px 14px;
-      border-radius: 10px;
-      font-size: 0.92rem;
-      line-height: 1.4;
-      border: 1px solid transparent;
-    }
-
-    .banner.visible {
-      display: block;
-    }
-
-    .banner.error {
-      background-color: var(--error-bg);
-      border-color: #6e282d;
-      color: var(--error);
-    }
-
-    .banner.warning {
-      background-color: var(--warning-bg);
-      border-color: #6e4621;
-      color: var(--warning);
-    }
-
-    .chat-log {
+    /* Main Chat Canvas */
+    .main-area {
       flex: 1;
       display: flex;
       flex-direction: column;
+      padding: 18px 0;
+      gap: 14px;
+    }
+
+    /* Welcome Screen */
+    .welcome-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin: auto 0;
+      padding: 12px 0;
+    }
+
+    .welcome-wrapper.hidden {
+      display: none;
+    }
+
+    .welcome-panel {
+      text-align: center;
+      padding: 36px 22px 28px;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+    }
+
+    .welcome-heading {
+      margin: 0 0 10px;
+      font-size: 1.55rem;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .welcome-subtext {
+      margin: 0 auto;
+      max-width: 500px;
+      font-size: 0.96rem;
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+
+    .prompts-label {
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+
+    .prompts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .prompt-card {
+      text-align: left;
+      padding: 13px 14px;
+      border-radius: 12px;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-size: 0.88rem;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .prompt-card:hover:not(:disabled) {
+      background-color: var(--bg-elevated);
+      border-color: var(--accent);
+    }
+
+    .prompt-card:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Chat Messages */
+    .chat-log {
+      display: flex;
+      flex-direction: column;
       gap: 12px;
-      overflow-y: auto;
-      padding: 4px 2px;
     }
 
     .message-row {
       display: flex;
       gap: 12px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      border: 1px solid #262c36;
-      background-color: var(--assistant-bg);
+      padding: 15px 18px;
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      background-color: var(--bg-surface);
       align-items: flex-start;
     }
 
     .message-row.user {
-      background-color: var(--user-bg);
-      border-color: #2c3d55;
+      background-color: var(--bg-elevated);
     }
 
     .avatar {
       width: 30px;
       height: 30px;
-      border-radius: 8px;
+      border-radius: 9px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       font-weight: 700;
       flex-shrink: 0;
-      background-color: var(--accent-soft);
+      background-color: rgba(56, 189, 248, 0.12);
       color: var(--accent);
-      border: 1px solid rgba(88, 166, 255, 0.25);
+      border: 1px solid rgba(56, 189, 248, 0.28);
     }
 
     .message-row.user .avatar {
-      background-color: rgba(255, 255, 255, 0.08);
-      color: #f0f6fc;
-      border-color: rgba(255, 255, 255, 0.16);
+      background-color: rgba(148, 163, 184, 0.12);
+      color: var(--text-primary);
+      border-color: var(--border-subtle);
     }
 
     .message-body {
@@ -206,54 +305,197 @@
     }
 
     .message-role {
-      font-size: 0.78rem;
+      font-size: 0.74rem;
       font-weight: 600;
-      color: var(--muted);
-      margin-bottom: 4px;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
     }
 
-    .message-text {
-      margin: 0;
-      white-space: pre-wrap;
-      word-break: break-word;
-      line-height: 1.55;
+    .message-content {
       font-size: 0.96rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      word-break: break-word;
     }
 
+    .message-content p {
+      margin: 0 0 10px;
+    }
+
+    .message-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .message-content h1,
+    .message-content h2,
+    .message-content h3 {
+      margin: 12px 0 6px;
+      font-size: 1.05rem;
+      color: var(--text-primary);
+    }
+
+    .message-content ul,
+    .message-content ol {
+      margin: 6px 0 10px;
+      padding-left: 20px;
+    }
+
+    .message-content li {
+      margin-bottom: 4px;
+    }
+
+    .inline-code {
+      background-color: var(--bg-app);
+      border: 1px solid var(--border-subtle);
+      border-radius: 5px;
+      padding: 1px 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88em;
+      color: #7dd3fc;
+    }
+
+    .code-block {
+      margin: 10px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      background-color: var(--bg-app);
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background-color: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .copy-btn {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      color: var(--text-secondary);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 0.73rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    .code-block pre {
+      margin: 0;
+      padding: 12px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: var(--text-primary);
+    }
+
+    .thinking-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 0.94rem;
+    }
+
+    .thinking-spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(56, 189, 248, 0.25);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Feedback Banners */
+    .banner {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.91rem;
+      line-height: 1.45;
+      border: 1px solid transparent;
+    }
+
+    .banner.visible {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .banner.error {
+      background-color: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error-text);
+    }
+
+    .banner.info {
+      background-color: var(--info-bg);
+      border-color: var(--info-border);
+      color: var(--text-primary);
+    }
+
+    /* Pinned Bottom Composer */
     .composer {
       position: sticky;
       bottom: 0;
-      background-color: var(--bg);
-      padding-top: 8px;
-      border-top: 1px solid #21262d;
+      background-color: var(--bg-app);
+      padding-top: 12px;
+      border-top: 1px solid rgba(148, 163, 184, 0.12);
     }
 
-    .composer-form {
+    .composer-box {
       display: flex;
-      gap: 10px;
       align-items: flex-end;
+      gap: 10px;
+      padding: 8px 10px 8px 14px;
+      background-color: var(--bg-surface);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 14px;
+      transition: border-color 0.15s ease;
+    }
+
+    .composer-box:focus-within {
+      border-color: var(--accent);
     }
 
     .composer-input {
       flex: 1;
-      resize: none;
-      min-height: 46px;
-      max-height: 160px;
-      padding: 11px 14px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background-color: var(--surface);
-      color: var(--text);
+      border: 0;
+      background: transparent;
+      color: var(--text-primary);
       font-family: inherit;
-      font-size: 0.96rem;
-      line-height: 1.4;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      resize: none;
+      min-height: 24px;
+      max-height: 150px;
+      padding: 6px 0;
       outline: none;
     }
 
-    .composer-input:focus {
-      border-color: var(--accent);
+    .composer-input::placeholder {
+      color: var(--text-secondary);
     }
 
     .composer-input:disabled {
@@ -261,51 +503,112 @@
       cursor: not-allowed;
     }
 
-    .hint-row {
+    .input-meta-row {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      margin-top: 6px;
-      font-size: 0.8rem;
-      color: var(--muted);
+      gap: 10px;
+      padding: 7px 4px 0;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
     }
 
-    @media (max-width: 600px) {
+    .question-counter {
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .question-counter.limit-reached {
+      color: var(--warn-text);
+    }
+
+    @media (max-width: 640px) {
       .app-shell {
         padding: 14px 12px 12px;
       }
-      .header-card h1 {
-        font-size: 1.35rem;
+
+      .welcome-panel {
+        padding: 26px 16px 22px;
       }
-      .composer-form {
-        gap: 8px;
+
+      .welcome-heading {
+        font-size: 1.32rem;
+      }
+
+      .prompts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .composer-box {
+        padding: 8px;
       }
     }
   </style>
 </head>
 <body>
   <main class="app-shell">
-    <section class="header-card">
-      <h1>Mini AI Assistant</h1>
-      <p>
-        Ask clear questions and explore technical concepts in beginner-friendly language.
-        Each conversation remembers context for up to 20 questions.
-      </p>
-    </section>
-
-    <section class="toolbar">
-      <div id="question-counter" class="counter-pill">Questions used: 0/20</div>
+    <header class="top-header">
+      <div class="brand-group">
+        <div class="brand-mark" aria-hidden="true">&#10022;</div>
+        <h1 class="brand-title">Mini AI Assistant</h1>
+        <span id="status-badge" class="status-badge">
+          <span class="status-dot"></span>
+          <span id="status-text">Connecting...</span>
+        </span>
+      </div>
       <button id="new-chat-btn" type="button" class="btn">New Chat</button>
+    </header>
+
+    <section class="main-area">
+      <div id="welcome-wrapper" class="welcome-wrapper">
+        <div class="welcome-panel">
+          <h2 class="welcome-heading">Your personal AI assistant</h2>
+          <p class="welcome-subtext">
+            Ask a question, explore an idea, or get help with something you're learning.
+          </p>
+        </div>
+        <div class="prompts-label">Try an example</div>
+        <div class="prompts-grid">
+          <button
+            type="button"
+            class="prompt-card"
+            data-prompt="Explain how an API works in simple, beginner-friendly terms."
+          >
+            Explain a concept in simple terms.
+          </button>
+          <button
+            type="button"
+            class="prompt-card"
+            data-prompt="Help me understand a Python problem: what is the difference between a list and a dictionary, and when should I use each?"
+          >
+            Help me understand a Python problem.
+          </button>
+          <button
+            type="button"
+            class="prompt-card"
+            data-prompt="Give me a step-by-step explanation of how Python virtual environments work."
+          >
+            Give me a step-by-step explanation of a topic.
+          </button>
+        </div>
+      </div>
+
+      <section id="chat-log" class="chat-log" aria-live="polite"></section>
+
+      <div id="error-banner" class="banner error" role="alert">
+        <span id="error-text"></span>
+        <button id="retry-btn" type="button" class="btn" style="display: none;">Retry last question</button>
+      </div>
+
+      <div id="limit-banner" class="banner info" role="status">
+        <span>You have reached the 20-question limit for this conversation. Start a new chat to ask more questions.</span>
+        <button id="limit-new-chat-btn" type="button" class="btn">Start New Chat</button>
+      </div>
     </section>
-
-    <div id="error-banner" class="banner error" role="alert"></div>
-    <div id="limit-banner" class="banner warning" role="status">
-      You have reached the 20-question limit for this conversation. Click <strong>New Chat</strong> to start a fresh conversation.
-    </div>
-
-    <section id="chat-log" class="chat-log" aria-live="polite"></section>
 
     <section class="composer">
-      <form id="chat-form" class="composer-form">
+      <form id="chat-form" class="composer-box">
         <textarea
           id="message-input"
           class="composer-input"
@@ -316,9 +619,9 @@
         ></textarea>
         <button id="send-btn" type="submit" class="btn btn-primary">Send</button>
       </form>
-      <div class="hint-row">
-        <span>Press Enter to send &middot; Shift+Enter for new line</span>
-        <span id="char-count">0 / 2000</span>
+      <div class="input-meta-row">
+        <span id="shortcut-hint">Enter to send &middot; Shift+Enter for new line</span>
+        <span id="question-counter" class="question-counter">0 / 20 questions</span>
       </div>
     </section>
   </main>
@@ -326,52 +629,227 @@
   <script>
     (() => {
       const chatLog = document.getElementById("chat-log");
+      const welcomeWrapper = document.getElementById("welcome-wrapper");
       const chatForm = document.getElementById("chat-form");
       const messageInput = document.getElementById("message-input");
       const sendBtn = document.getElementById("send-btn");
       const newChatBtn = document.getElementById("new-chat-btn");
+      const limitNewChatBtn = document.getElementById("limit-new-chat-btn");
+      const retryBtn = document.getElementById("retry-btn");
+      const statusBadge = document.getElementById("status-badge");
+      const statusText = document.getElementById("status-text");
       const counterEl = document.getElementById("question-counter");
+      const shortcutHint = document.getElementById("shortcut-hint");
       const errorBanner = document.getElementById("error-banner");
+      const errorText = document.getElementById("error-text");
       const limitBanner = document.getElementById("limit-banner");
-      const charCount = document.getElementById("char-count");
+      const promptCards = Array.from(document.querySelectorAll(".prompt-card"));
 
       const state = {
         conversationId: null,
         sessionToken: null,
         questionsUsed: 0,
         questionLimit: 20,
-        isLoading: false,
+        isGenerating: false,
+        backendConnected: false,
+        hasMessages: false,
+        failedPrompt: null,
       };
 
-      function showError(msg) {
+      function setBackendStatus(connected) {
+        state.backendConnected = connected;
+        statusBadge.classList.toggle("online", connected);
+        statusBadge.classList.toggle("offline", !connected);
+        statusText.textContent = connected ? "Connected" : "Backend offline";
+      }
+
+      function showError(msg, canRetry = false) {
         if (!msg) {
-          errorBanner.textContent = "";
+          errorText.textContent = "";
           errorBanner.classList.remove("visible");
+          retryBtn.style.display = "none";
           return;
         }
-        errorBanner.textContent = msg;
+        errorText.textContent = msg;
         errorBanner.classList.add("visible");
+        retryBtn.style.display = canRetry && state.failedPrompt ? "inline-flex" : "none";
       }
 
       function updateUIState() {
         const limitReached = state.questionsUsed >= state.questionLimit;
-        counterEl.textContent = `Questions used: ${state.questionsUsed}/${state.questionLimit}`;
+        const canSubmit =
+          state.backendConnected &&
+          Boolean(state.conversationId) &&
+          !limitReached &&
+          !state.isGenerating;
+
+        welcomeWrapper.classList.toggle("hidden", state.hasMessages);
+        counterEl.textContent = `${state.questionsUsed} / ${state.questionLimit} questions`;
         counterEl.classList.toggle("limit-reached", limitReached);
         limitBanner.classList.toggle("visible", limitReached);
 
-        const disableInput = state.isLoading || limitReached || !state.conversationId;
-        messageInput.disabled = disableInput;
-        sendBtn.disabled = disableInput;
-        newChatBtn.disabled = state.isLoading;
+        messageInput.disabled = !canSubmit;
+        sendBtn.disabled = !canSubmit;
+        newChatBtn.disabled = state.isGenerating;
+        limitNewChatBtn.disabled = state.isGenerating;
+        promptCards.forEach((card) => {
+          card.disabled = !canSubmit;
+        });
+
+        messageInput.placeholder = limitReached
+          ? "Question limit reached — click New Chat to continue"
+          : "Ask a question...";
+        shortcutHint.textContent = state.isGenerating
+          ? "Generating response..."
+          : "Enter to send · Shift+Enter for new line";
       }
 
-      function appendMessage(role, content) {
+      function appendInlineFormatted(container, text) {
+        const pattern = /(`[^`]+`|\*\*[^*]+\*\*)/g;
+        let lastIndex = 0;
+        let match;
+        while ((match = pattern.exec(text)) !== null) {
+          if (match.index > lastIndex) {
+            container.appendChild(
+              document.createTextNode(text.slice(lastIndex, match.index))
+            );
+          }
+          const token = match[0];
+          if (token.startsWith("`") && token.endsWith("`")) {
+            const codeEl = document.createElement("code");
+            codeEl.className = "inline-code";
+            codeEl.textContent = token.slice(1, -1);
+            container.appendChild(codeEl);
+          } else if (token.startsWith("**") && token.endsWith("**")) {
+            const strongEl = document.createElement("strong");
+            strongEl.textContent = token.slice(2, -2);
+            container.appendChild(strongEl);
+          }
+          lastIndex = pattern.lastIndex;
+        }
+        if (lastIndex < text.length) {
+          container.appendChild(document.createTextNode(text.slice(lastIndex)));
+        }
+      }
+
+      function renderMarkdownSafe(container, markdownText) {
+        container.innerHTML = "";
+        const lines = String(markdownText).replace(/\r\n/g, "\n").split("\n");
+        let i = 0;
+
+        while (i < lines.length) {
+          const line = lines[i];
+
+          if (line.trim().startsWith("```")) {
+            const lang = line.trim().slice(3).trim() || "code";
+            const codeLines = [];
+            i += 1;
+            while (i < lines.length && !lines[i].trim().startsWith("```")) {
+              codeLines.push(lines[i]);
+              i += 1;
+            }
+            i += 1;
+
+            const codeText = codeLines.join("\n");
+            const block = document.createElement("div");
+            block.className = "code-block";
+
+            const header = document.createElement("div");
+            header.className = "code-header";
+            const langLabel = document.createElement("span");
+            langLabel.textContent = lang;
+            const copyBtn = document.createElement("button");
+            copyBtn.type = "button";
+            copyBtn.className = "copy-btn";
+            copyBtn.textContent = "Copy";
+            copyBtn.addEventListener("click", async () => {
+              try {
+                await navigator.clipboard.writeText(codeText);
+                copyBtn.textContent = "Copied";
+                setTimeout(() => {
+                  copyBtn.textContent = "Copy";
+                }, 1500);
+              } catch (_) {}
+            });
+
+            header.appendChild(langLabel);
+            header.appendChild(copyBtn);
+
+            const pre = document.createElement("pre");
+            const code = document.createElement("code");
+            code.textContent = codeText;
+            pre.appendChild(code);
+
+            block.appendChild(header);
+            block.appendChild(pre);
+            container.appendChild(block);
+            continue;
+          }
+
+          if (/^\s*[-*]\s+/.test(line)) {
+            const ul = document.createElement("ul");
+            while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
+              const li = document.createElement("li");
+              appendInlineFormatted(li, lines[i].replace(/^\s*[-*]\s+/, ""));
+              ul.appendChild(li);
+              i += 1;
+            }
+            container.appendChild(ul);
+            continue;
+          }
+
+          if (/^\s*\d+\.\s+/.test(line)) {
+            const ol = document.createElement("ol");
+            while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) {
+              const li = document.createElement("li");
+              appendInlineFormatted(li, lines[i].replace(/^\s*\d+\.\s+/, ""));
+              ol.appendChild(li);
+              i += 1;
+            }
+            container.appendChild(ol);
+            continue;
+          }
+
+          const headingMatch = line.match(/^(#{1,3})\s+(.+)$/);
+          if (headingMatch) {
+            const level = headingMatch[1].length;
+            const h = document.createElement(`h${level}`);
+            appendInlineFormatted(h, headingMatch[2]);
+            container.appendChild(h);
+            i += 1;
+            continue;
+          }
+
+          if (!line.trim()) {
+            i += 1;
+            continue;
+          }
+
+          const pLines = [];
+          while (
+            i < lines.length &&
+            lines[i].trim() &&
+            !lines[i].trim().startsWith("```") &&
+            !/^\s*[-*]\s+/.test(lines[i]) &&
+            !/^\s*\d+\.\s+/.test(lines[i]) &&
+            !/^#{1,3}\s+/.test(lines[i])
+          ) {
+            pLines.push(lines[i]);
+            i += 1;
+          }
+          const p = document.createElement("p");
+          appendInlineFormatted(p, pLines.join(" "));
+          container.appendChild(p);
+        }
+      }
+
+      function appendMessage(role, content, { isThinking = false } = {}) {
         const row = document.createElement("div");
         row.className = `message-row ${role}`;
 
         const avatar = document.createElement("div");
         avatar.className = "avatar";
-        avatar.textContent = role === "user" ? "You" : "AI";
+        avatar.textContent = role === "user" ? "You" : "✦";
 
         const body = document.createElement("div");
         body.className = "message-body";
@@ -380,25 +858,30 @@
         roleLabel.className = "message-role";
         roleLabel.textContent = role === "user" ? "You" : "Assistant";
 
-        const textEl = document.createElement("p");
-        textEl.className = "message-text";
-        textEl.textContent = content;
+        const contentEl = document.createElement("div");
+        contentEl.className = "message-content";
+
+        if (isThinking) {
+          const wrap = document.createElement("div");
+          wrap.className = "thinking-indicator";
+          const spinner = document.createElement("span");
+          spinner.className = "thinking-spinner";
+          const label = document.createElement("span");
+          label.textContent = "Thinking...";
+          wrap.appendChild(spinner);
+          wrap.appendChild(label);
+          contentEl.appendChild(wrap);
+        } else {
+          renderMarkdownSafe(contentEl, content);
+        }
 
         body.appendChild(roleLabel);
-        body.appendChild(textEl);
+        body.appendChild(contentEl);
         row.appendChild(avatar);
         row.appendChild(body);
         chatLog.appendChild(row);
-        chatLog.scrollTop = chatLog.scrollHeight;
+        row.scrollIntoView({ behavior: "smooth", block: "end" });
         return row;
-      }
-
-      function renderWelcomeMessage() {
-        chatLog.innerHTML = "";
-        appendMessage(
-          "assistant",
-          "Hello! I am your Mini AI Assistant. Ask me a question below to get started."
-        );
       }
 
       async function extractError(response) {
@@ -411,29 +894,53 @@
         return `Request failed with status ${response.status}.`;
       }
 
+      async function checkHealth() {
+        try {
+          const res = await fetch("/health", { method: "GET" });
+          const ok = res.ok && (await res.json()).status === "ok";
+          setBackendStatus(ok);
+          return ok;
+        } catch (_) {
+          setBackendStatus(false);
+          return false;
+        }
+      }
+
       async function startNewChat() {
-        state.isLoading = true;
+        state.isGenerating = true;
+        state.failedPrompt = null;
         showError("");
         updateUIState();
 
         try {
+          const healthy = await checkHealth();
+          if (!healthy) {
+            showError(
+              "Backend server is currently unavailable. Please start FastAPI and click New Chat."
+            );
+            return;
+          }
+
           const res = await fetch("/api/chat/new", { method: "POST" });
           if (!res.ok) {
             showError(await extractError(res));
             return;
           }
+
           const data = await res.json();
           state.conversationId = data.conversation_id;
           state.sessionToken = res.headers.get("X-Session-State");
           state.questionsUsed = Number(data.questions_used || 0);
           state.questionLimit = Number(data.question_limit || 20);
-          renderWelcomeMessage();
+          state.hasMessages = false;
+          chatLog.innerHTML = "";
           messageInput.value = "";
-          charCount.textContent = "0 / 2000";
+          messageInput.style.height = "auto";
         } catch (_) {
+          setBackendStatus(false);
           showError("Could not connect to the backend service. Please try again.");
         } finally {
-          state.isLoading = false;
+          state.isGenerating = false;
           updateUIState();
           if (!messageInput.disabled) {
             messageInput.focus();
@@ -441,9 +948,8 @@
         }
       }
 
-      async function handleSubmit(event) {
-        event.preventDefault();
-        if (state.isLoading || !state.conversationId) {
+      async function submitQuestion(rawText) {
+        if (state.isGenerating || !state.conversationId) {
           return;
         }
         if (state.questionsUsed >= state.questionLimit) {
@@ -451,7 +957,6 @@
           return;
         }
 
-        const rawText = messageInput.value;
         const cleaned = rawText.trim();
         if (!cleaned) {
           showError("Please enter a question before sending.");
@@ -459,14 +964,15 @@
         }
 
         showError("");
-        state.isLoading = true;
+        state.isGenerating = true;
+        state.hasMessages = true;
+        state.failedPrompt = null;
         updateUIState();
 
         const userRow = appendMessage("user", cleaned);
-        const loadingRow = appendMessage("assistant", "Thinking...");
+        const loadingRow = appendMessage("assistant", "", { isThinking: true });
         messageInput.value = "";
         messageInput.style.height = "auto";
-        charCount.textContent = "0 / 2000";
 
         try {
           const headers = { "Content-Type": "application/json" };
@@ -486,17 +992,22 @@
           if (!res.ok) {
             userRow.remove();
             loadingRow.remove();
-            messageInput.value = rawText;
-            charCount.textContent = `${rawText.length} / 2000`;
+            state.hasMessages = chatLog.children.length > 0;
 
             const detail = await extractError(res);
             if (res.status === 404) {
               state.conversationId = null;
               state.sessionToken = null;
+              showError(
+                `${detail} (In-memory conversations clear when the backend restarts.)`
+              );
             } else if (res.status === 400 && detail.includes("Question limit")) {
               state.questionsUsed = state.questionLimit;
+              showError(detail);
+            } else {
+              state.failedPrompt = cleaned;
+              showError(detail, true);
             }
-            showError(detail);
             return;
           }
 
@@ -505,17 +1016,20 @@
           if (nextToken) {
             state.sessionToken = nextToken;
           }
-          loadingRow.querySelector(".message-text").textContent = data.response;
+          setBackendStatus(true);
+          renderMarkdownSafe(loadingRow.querySelector(".message-content"), data.response);
+          loadingRow.scrollIntoView({ behavior: "smooth", block: "end" });
           state.questionsUsed = Number(data.questions_used);
           state.questionLimit = Number(data.question_limit || state.questionLimit);
         } catch (_) {
           userRow.remove();
           loadingRow.remove();
-          messageInput.value = rawText;
-          charCount.textContent = `${rawText.length} / 2000`;
-          showError("Network error while waiting for a response. Please try again.");
+          state.hasMessages = chatLog.children.length > 0;
+          setBackendStatus(false);
+          state.failedPrompt = cleaned;
+          showError("Network error while waiting for a response. Please try again.", true);
         } finally {
-          state.isLoading = false;
+          state.isGenerating = false;
           updateUIState();
           if (!messageInput.disabled) {
             messageInput.focus();
@@ -525,8 +1039,7 @@
 
       messageInput.addEventListener("input", () => {
         messageInput.style.height = "auto";
-        messageInput.style.height = `${Math.min(messageInput.scrollHeight, 160)}px`;
-        charCount.textContent = `${messageInput.value.length} / 2000`;
+        messageInput.style.height = `${Math.min(messageInput.scrollHeight, 150)}px`;
       });
 
       messageInput.addEventListener("keydown", (event) => {
@@ -536,8 +1049,26 @@
         }
       });
 
-      chatForm.addEventListener("submit", handleSubmit);
+      chatForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        submitQuestion(messageInput.value);
+      });
+
+      promptCards.forEach((card) => {
+        card.addEventListener("click", () => {
+          const prompt = card.getAttribute("data-prompt") || "";
+          submitQuestion(prompt);
+        });
+      });
+
+      retryBtn.addEventListener("click", () => {
+        if (state.failedPrompt) {
+          submitQuestion(state.failedPrompt);
+        }
+      });
+
       newChatBtn.addEventListener("click", startNewChat);
+      limitNewChatBtn.addEventListener("click", startNewChat);
 
       startNewChat();
     })();
