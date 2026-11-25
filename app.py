@@ -21,16 +21,16 @@ CHAT_TIMEOUT_SECONDS = 35.0
 
 EXAMPLE_PROMPTS: tuple[tuple[str, str], ...] = (
     (
-        "Explain a concept in simple terms.",
+        "Explain a concept simply",
         "Explain how an API works in simple, beginner-friendly terms.",
     ),
     (
-        "Help me understand a Python problem.",
-        "Help me understand a Python problem: what is the difference between a list and a dictionary, and when should I use each?",
+        "Python list vs dictionary",
+        "Help me understand the difference between a Python list and dictionary, and when to use each.",
     ),
     (
-        "Give me a step-by-step explanation of a topic.",
-        "Give me a step-by-step explanation of how Python virtual environments work.",
+        "Step-by-step walkthrough",
+        "Give me a clear step-by-step explanation of how Python virtual environments work.",
     ),
 )
 
@@ -45,26 +45,109 @@ def get_backend_url() -> str:
 
 
 def apply_custom_css() -> None:
-    """Apply clean, minimal dark styling using organized static CSS."""
+    """Apply Flowstate-inspired near-black glass UI and ambient background glow."""
     st.markdown(
         """
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap');
+
         :root {
-            --bg-app: #0b0e14;
-            --bg-surface: #121721;
-            --bg-elevated: #171d29;
-            --accent: #38bdf8;
-            --accent-hover: #0ea5e9;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border-subtle: rgba(148, 163, 184, 0.16);
+            --bg-app: #04050c;
+            --bg-glass: rgba(14, 18, 32, 0.64);
+            --bg-glass-strong: rgba(18, 23, 42, 0.78);
+            --bg-glass-user: rgba(30, 41, 74, 0.56);
+            --text-primary: #eef0f6;
+            --text-secondary: #b9becf;
+            --accent-cyan: #22d3ee;
+            --accent-blue: #38bdf8;
+            --accent-violet: #8b5cf6;
+            --accent-magenta: #d946ef;
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --border-glass-strong: rgba(255, 255, 255, 0.16);
         }
 
+        html,
+        body,
         .stApp {
-            background-color: var(--bg-app);
+            background-color: var(--bg-app) !important;
             color: var(--text-primary);
-            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Onest', Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             overflow-x: hidden;
+        }
+
+        [data-testid="stAppViewContainer"],
+        [data-testid="stMain"],
+        section.main {
+            background: transparent !important;
+        }
+
+        /* Subtle slow-moving ambient cyan-to-violet fluid glow behind UI */
+        .ambient-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% -10%, rgba(56, 189, 248, 0.08), transparent 55%);
+        }
+
+        .ambient-orb {
+            position: absolute;
+            border-radius: 999px;
+            filter: blur(90px);
+            opacity: 0.42;
+            will-change: transform;
+        }
+
+        .orb-cyan {
+            width: 52vw;
+            height: 52vw;
+            max-width: 620px;
+            max-height: 620px;
+            top: -16%;
+            left: -10%;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.28) 0%, rgba(56, 189, 248, 0.12) 48%, transparent 72%);
+            animation: driftCyan 24s ease-in-out infinite alternate;
+        }
+
+        .orb-violet {
+            width: 54vw;
+            height: 54vw;
+            max-width: 660px;
+            max-height: 660px;
+            bottom: -18%;
+            right: -12%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.28) 0%, rgba(217, 70, 239, 0.11) 46%, transparent 74%);
+            animation: driftViolet 30s ease-in-out infinite alternate;
+        }
+
+        @keyframes driftCyan {
+            0% { transform: translate3d(0, 0, 0) scale(1); }
+            100% { transform: translate3d(9vw, 6vh, 0) scale(1.08); }
+        }
+
+        @keyframes driftViolet {
+            0% { transform: translate3d(0, 0, 0) scale(1); }
+            100% { transform: translate3d(-8vw, -7vh, 0) scale(1.1); }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ambient-orb,
+            .welcome-panel,
+            [data-testid="stChatMessage"] {
+                animation: none !important;
+            }
         }
 
         #MainMenu,
@@ -73,58 +156,70 @@ def apply_custom_css() -> None:
         }
 
         [data-testid="stHeader"] {
-            background-color: rgba(11, 14, 20, 0.9);
-            backdrop-filter: blur(8px);
+            background: transparent !important;
         }
 
         .block-container {
-            max-width: 780px;
-            padding-top: 1.25rem;
-            padding-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+            max-width: 760px;
+            padding-top: 1.15rem;
+            padding-bottom: 1.75rem;
         }
 
-        /* Compact top header */
-        .top-header-brand {
+        /* Quiet Glass Header */
+        [data-testid="stHorizontalBlock"]:has(.brand-left) {
+            padding: 0.6rem 0.9rem;
+            border-radius: 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.38);
+            margin-bottom: 0.75rem;
+        }
+
+        .brand-left {
             display: flex;
             align-items: center;
             gap: 0.7rem;
-            flex-wrap: wrap;
-            padding: 0.15rem 0;
+            min-width: 0;
         }
 
         .brand-mark {
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             border-radius: 10px;
-            background-color: var(--bg-elevated);
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            color: var(--accent);
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(139, 92, 246, 0.25));
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: var(--accent-cyan);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 700;
             flex-shrink: 0;
         }
 
         .brand-title {
-            font-size: 1.15rem;
+            margin: 0;
+            font-size: 1.05rem;
             font-weight: 600;
             color: var(--text-primary);
-            letter-spacing: -0.01em;
-            margin: 0;
+            letter-spacing: -0.015em;
+            white-space: nowrap;
         }
 
-        .status-badge {
+        .status-pill {
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
-            padding: 0.22rem 0.6rem;
+            gap: 0.42rem;
+            padding: 0.26rem 0.7rem;
             border-radius: 999px;
-            font-size: 0.76rem;
+            font-size: 0.78rem;
             font-weight: 500;
-            border: 1px solid var(--border-subtle);
-            background-color: var(--bg-surface);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
             color: var(--text-secondary);
         }
 
@@ -135,160 +230,183 @@ def apply_custom_css() -> None:
             display: inline-block;
         }
 
-        .status-online .status-dot {
-            background-color: #34d399;
+        .status-ready {
+            color: #d8f8ee;
+            border-color: rgba(52, 211, 153, 0.28);
         }
 
-        .status-online {
-            color: #a7f3d0;
-            border-color: rgba(52, 211, 153, 0.25);
+        .status-ready .status-dot {
+            background-color: #34d399;
+            box-shadow: 0 0 8px rgba(52, 211, 153, 0.65);
+        }
+
+        .status-offline {
+            color: #fde68a;
+            border-color: rgba(245, 158, 11, 0.3);
         }
 
         .status-offline .status-dot {
             background-color: #f59e0b;
         }
 
-        .status-offline {
-            color: #fcd34d;
-            border-color: rgba(245, 158, 11, 0.28);
-        }
-
-        .header-divider {
-            border: 0;
-            border-top: 1px solid var(--border-subtle);
-            margin: 0.65rem 0 1.25rem 0;
-        }
-
-        /* Centered welcome screen */
+        /* Welcome Screen */
         .welcome-panel {
             text-align: center;
-            padding: 2.5rem 1.25rem 1.5rem 1.25rem;
-            margin: 0.5rem auto 1rem auto;
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 16px;
+            padding: 2.6rem 1.5rem 2rem;
+            margin: 1.4rem auto 1rem;
+            border-radius: 22px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+            animation: fadeUp 0.4s ease-out;
         }
 
         .welcome-heading {
-            font-size: 1.55rem;
-            font-weight: 650;
+            margin: 0 0 0.6rem;
+            font-size: 1.7rem;
+            font-weight: 600;
+            letter-spacing: -0.025em;
             color: var(--text-primary);
-            letter-spacing: -0.02em;
-            margin: 0 0 0.55rem 0;
         }
 
         .welcome-subtext {
-            font-size: 0.96rem;
-            color: var(--text-secondary);
-            line-height: 1.55;
-            max-width: 520px;
             margin: 0 auto;
+            max-width: 490px;
+            font-size: 0.96rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
         }
 
         .prompts-caption {
-            font-size: 0.8rem;
+            text-align: center;
+            font-size: 0.76rem;
             font-weight: 500;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin: 1rem 0 0.5rem 0;
-            text-align: center;
+            letter-spacing: 0.08em;
+            margin: 0.85rem 0 0.55rem;
+            opacity: 0.85;
         }
 
-        /* Chat messages */
+        /* Chat Bubbles */
         [data-testid="stChatMessage"] {
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 14px;
-            padding: 0.95rem 1.15rem;
-            margin-bottom: 0.75rem;
+            background: var(--bg-glass) !important;
+            border: 1px solid var(--border-glass) !important;
+            border-radius: 18px !important;
+            padding: 1rem 1.2rem !important;
+            margin-bottom: 0.8rem !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+            animation: fadeUp 0.25s ease-out;
         }
 
         [data-testid="stChatMessage"] p,
         [data-testid="stChatMessage"] li {
             color: var(--text-primary);
-            line-height: 1.6;
+            line-height: 1.65;
             font-size: 0.96rem;
         }
 
         [data-testid="stChatMessage"] pre {
-            background-color: var(--bg-app) !important;
-            border: 1px solid var(--border-subtle) !important;
-            border-radius: 10px !important;
+            background: rgba(4, 5, 12, 0.85) !important;
+            border: 1px solid var(--border-glass) !important;
+            border-radius: 12px !important;
         }
 
         [data-testid="stChatMessage"] code {
-            color: #7dd3fc;
+            color: #67e8f9;
         }
 
         /* Buttons */
         div.stButton > button {
-            background-color: var(--bg-elevated);
+            background: var(--bg-glass-strong);
             color: var(--text-primary);
-            border: 1px solid var(--border-subtle);
-            border-radius: 10px;
-            font-size: 0.88rem;
+            border: 1px solid var(--border-glass);
+            border-radius: 999px;
+            font-family: 'Onest', Inter, sans-serif;
+            font-size: 0.86rem;
             font-weight: 500;
-            min-height: 2.55rem;
-            padding: 0.45rem 0.9rem;
-            transition: border-color 0.15s ease, background-color 0.15s ease;
+            min-height: 2.5rem;
+            padding: 0.45rem 1rem;
+            backdrop-filter: blur(10px);
+            transition: border-color 0.16s ease, background-color 0.16s ease, transform 0.12s ease;
         }
 
         div.stButton > button:hover:not(:disabled) {
-            background-color: #1e2636;
-            border-color: var(--accent);
+            background: rgba(34, 211, 238, 0.12);
+            border-color: rgba(56, 189, 248, 0.55);
             color: #ffffff;
         }
 
+        div.stButton > button:focus-visible {
+            outline: 2px solid var(--accent-cyan) !important;
+            outline-offset: 2px !important;
+        }
+
         div.stButton > button:disabled {
-            opacity: 0.5;
+            opacity: 0.45;
             cursor: not-allowed;
         }
 
-        /* Bottom pinned input area */
+        /* Flowstate-inspired Glass Composer */
         [data-testid="stBottom"],
         [data-testid="stBottom"] > div {
-            background-color: var(--bg-app) !important;
+            background: linear-gradient(to top, rgba(4, 5, 12, 0.96) 65%, rgba(4, 5, 12, 0)) !important;
+            position: relative;
+            z-index: 2;
         }
 
         [data-testid="stBottom"] > div {
-            border-top: 1px solid rgba(148, 163, 184, 0.12);
-            padding-top: 0.65rem;
+            padding-top: 0.75rem;
+            padding-bottom: 0.65rem;
         }
 
         [data-testid="stChatInput"] {
-            background-color: var(--bg-surface) !important;
-            border: 1px solid rgba(148, 163, 184, 0.24) !important;
-            border-radius: 14px !important;
+            background: rgba(16, 20, 36, 0.76) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            border-radius: 22px !important;
+            backdrop-filter: blur(18px) !important;
+            -webkit-backdrop-filter: blur(18px) !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            padding: 0.2rem 0.3rem !important;
         }
 
         [data-testid="stChatInput"]:focus-within {
-            border-color: var(--accent) !important;
+            border-color: rgba(34, 211, 238, 0.6) !important;
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.14), 0 14px 40px rgba(0, 0, 0, 0.55) !important;
         }
 
         [data-testid="stChatInput"] textarea {
-            background-color: transparent !important;
+            background: transparent !important;
             color: var(--text-primary) !important;
+            font-family: 'Onest', Inter, sans-serif !important;
             font-size: 0.95rem !important;
         }
 
         [data-testid="stChatInput"] textarea::placeholder {
             color: var(--text-secondary) !important;
+            opacity: 0.8;
         }
 
         [data-testid="stChatInputSubmitButton"] {
-            background-color: var(--accent) !important;
-            color: #0b0e14 !important;
-            border-radius: 10px !important;
+            background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 55%, #8b5cf6 100%) !important;
+            color: #04050c !important;
+            border-radius: 999px !important;
+            border: none !important;
+            box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35) !important;
         }
 
         [data-testid="stChatInputSubmitButton"]:hover:not(:disabled) {
-            background-color: var(--accent-hover) !important;
+            filter: brightness(1.08);
         }
 
         [data-testid="stChatInputSubmitButton"]:disabled {
-            background-color: #1e293b !important;
-            color: #64748b !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: rgba(185, 190, 207, 0.45) !important;
+            box-shadow: none !important;
         }
 
         .input-meta-row {
@@ -296,7 +414,7 @@ def apply_custom_css() -> None:
             align-items: center;
             justify-content: space-between;
             gap: 0.75rem;
-            padding: 0.25rem 0.25rem 0 0.25rem;
+            padding: 0.35rem 0.5rem 0;
             font-size: 0.78rem;
             color: var(--text-secondary);
             flex-wrap: wrap;
@@ -308,25 +426,34 @@ def apply_custom_css() -> None:
         }
 
         .question-counter-limit {
-            color: #fbbf24;
+            color: #fde68a;
         }
 
         @media (max-width: 640px) {
             .block-container {
-                padding-top: 0.85rem;
+                padding-top: 0.75rem;
                 padding-left: 0.85rem;
                 padding-right: 0.85rem;
             }
 
+            [data-testid="stHorizontalBlock"]:has(.brand-left) {
+                padding: 0.55rem 0.75rem;
+            }
+
             .welcome-panel {
-                padding: 1.75rem 1rem 1.25rem 1rem;
+                padding: 1.9rem 1.1rem 1.5rem;
+                margin-top: 0.75rem;
             }
 
             .welcome-heading {
-                font-size: 1.32rem;
+                font-size: 1.38rem;
             }
         }
         </style>
+        <div class="ambient-bg" aria-hidden="true">
+            <div class="ambient-orb orb-cyan"></div>
+            <div class="ambient-orb orb-violet"></div>
+        </div>
         """,
         unsafe_allow_html=True,
     )
@@ -485,18 +612,28 @@ def queue_prompt(prompt_text: str) -> None:
 
 
 def render_header(backend_url: str, backend_connected: bool) -> None:
-    """Render the compact top header with brand icon, status badge, and New Chat."""
+    """Render the quiet glass header with brand mark, Ready status, and New Chat."""
     with st.container():
-        col_brand, col_action = st.columns([3.3, 1.1], vertical_alignment="center")
+        col_brand, col_status, col_action = st.columns(
+            [2.6, 1.0, 1.1], vertical_alignment="center"
+        )
         with col_brand:
-            status_cls = "status-online" if backend_connected else "status-offline"
-            status_label = "Connected" if backend_connected else "Backend offline"
             st.markdown(
-                f"""
-                <div class="top-header-brand">
+                """
+                <div class="brand-left">
                     <div class="brand-mark" aria-hidden="true">&#10022;</div>
                     <h1 class="brand-title">Mini AI Assistant</h1>
-                    <span class="status-badge {status_cls}">
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        with col_status:
+            status_cls = "status-ready" if backend_connected else "status-offline"
+            status_label = "Ready" if backend_connected else "Offline"
+            st.markdown(
+                f"""
+                <div style="display:flex; justify-content:flex-end;">
+                    <span class="status-pill {status_cls}">
                         <span class="status-dot"></span>
                         {status_label}
                     </span>
@@ -516,20 +653,18 @@ def render_header(backend_url: str, backend_connected: bool) -> None:
                     st.session_state.error_message = err
                 st.rerun()
 
-        st.markdown('<hr class="header-divider" />', unsafe_allow_html=True)
-
 
 def render_welcome_screen(*, can_submit: bool) -> None:
-    """Render the centered empty-state welcome message and 3 clickable prompts."""
+    """Render the centered empty-state welcome heading and starter prompts."""
     st.markdown(
         """
         <div class="welcome-panel">
             <h2 class="welcome-heading">Your personal AI assistant</h2>
             <p class="welcome-subtext">
-                Ask a question, explore an idea, or get help with something you're learning.
+                Ask clear questions, explore ideas, or get beginner-friendly explanations in seconds.
             </p>
         </div>
-        <div class="prompts-caption">Try an example</div>
+        <div class="prompts-caption">Starter prompts</div>
         """,
         unsafe_allow_html=True,
     )
@@ -656,9 +791,10 @@ def render_feedback_states(
 def render_bottom_input(
     *, backend_connected: bool, limit_reached: bool
 ) -> str | None:
-    """Render the pinned multiline chat input, shortcut hint, and question counter."""
+    """Render the glass-style composer bar, shortcut hint, and remaining count."""
     questions_used = st.session_state.questions_used
     question_limit = st.session_state.question_limit
+    questions_remaining = max(0, question_limit - questions_used)
     input_disabled = (
         not backend_connected
         or st.session_state.conversation_id is None
@@ -669,7 +805,7 @@ def render_bottom_input(
     placeholder = (
         "Question limit reached — click New Chat to continue"
         if limit_reached
-        else "Ask a question..."
+        else "Ask anything..."
     )
     counter_class = (
         "question-counter question-counter-limit"
@@ -693,7 +829,7 @@ def render_bottom_input(
             f"""
             <div class="input-meta-row">
                 <span>{hint_text}</span>
-                <span class="{counter_class}">{questions_used} / {question_limit} questions</span>
+                <span class="{counter_class}">{questions_used} / {question_limit} questions &middot; {questions_remaining} left</span>
             </div>
             """,
             unsafe_allow_html=True,

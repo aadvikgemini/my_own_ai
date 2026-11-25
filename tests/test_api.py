@@ -422,6 +422,9 @@ def test_web_ui_endpoint_serves_html_without_secrets() -> None:
     assert "Your personal AI assistant" in res.text
     assert "Explain a concept in simple terms." in res.text
     assert "0 / 20 questions" in res.text
+    assert "#04050c" in res.text
+    assert "Onest" in res.text
+    assert "prefers-reduced-motion" in res.text
     assert "test-only-dummy-token" not in res.text
     assert "OPENAI_API_KEY" not in res.text
 
@@ -522,14 +525,16 @@ def test_streamlit_ui_full_conversation_limit_and_error_flows(monkeypatch) -> No
     assert not at.exception
     markdown_blob = "\n".join(m.value for m in at.markdown)
     assert "Mini AI Assistant" in markdown_blob
-    assert "Connected" in markdown_blob
+    assert "Ready" in markdown_blob
     assert "Your personal AI assistant" in markdown_blob
     assert "0 / 20 questions" in markdown_blob
-    assert any(b.label == "Explain a concept in simple terms." for b in at.button)
+    assert "20 left" in markdown_blob
+    assert "#04050c" in markdown_blob
+    assert any(b.label == "Explain a concept simply" for b in at.button)
 
     # 1. Click example prompt button -> submits through FastAPI and updates counter.
     example_btn = next(
-        b for b in at.button if b.label == "Explain a concept in simple terms."
+        b for b in at.button if b.label == "Explain a concept simply"
     )
     example_btn.click().run()
     # Two-step generation flow executes process_pending_prompt and reruns cleanly.
@@ -620,7 +625,7 @@ def test_streamlit_ui_backend_offline_state(monkeypatch) -> None:
     at = AppTest.from_file(app_path, default_timeout=15)
     at.run()
     assert not at.exception
-    assert "Backend offline" in "\n".join(m.value for m in at.markdown)
+    assert "Offline" in "\n".join(m.value for m in at.markdown)
     assert any("unavailable" in e.value.lower() for e in at.error)
     assert at.chat_input[0].disabled is True
 
