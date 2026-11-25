@@ -473,3 +473,16 @@ def test_serverless_session_state_continuity_and_tamper_rejection() -> None:
     ]
 
 
+def test_groq_base_url_auto_detection_from_env(monkeypatch) -> None:
+    from backend.config import DEFAULT_GROQ_BASE_URL, DEFAULT_GROQ_MODEL, load_settings
+
+    monkeypatch.setenv("OPENAI_API_KEY", "gsk_" + "dummy_nonreal_test_token")
+    monkeypatch.setenv("OPENAI_MODEL", "")
+    monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
+
+    settings = load_settings(load_env_file=False)
+    assert settings.openai_base_url == DEFAULT_GROQ_BASE_URL
+    assert settings.openai_model == DEFAULT_GROQ_MODEL
+
+
+

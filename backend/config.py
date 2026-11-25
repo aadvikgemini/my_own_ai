@@ -15,6 +15,8 @@ BACKEND_DIR = Path(__file__).resolve().parent
 DEFAULT_ENV_PATH = BACKEND_DIR / ".env"
 
 DEFAULT_MODEL = "gpt-5-mini"
+DEFAULT_GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+DEFAULT_GROQ_MODEL = "openai/gpt-oss-20b"
 DEFAULT_ALLOWED_ORIGINS: tuple[str, ...] = (
     "http://localhost:8501",
     "http://127.0.0.1:8501",
@@ -48,12 +50,24 @@ def parse_allowed_origins(raw_origins: str | None) -> tuple[str, ...]:
     return tuple(dict.fromkeys(origins)) or DEFAULT_ALLOWED_ORIGINS
 
 
+def parse_base_url(raw_url: str | None) -> str | None:
+    """Validate an optional OpenAI-compatible API base URL."""
+    if not raw_url or not raw_url.strip():
+        return None
+    cleaned = raw_url.strip().rstrip("/")
+    parsed = urlparse(cleaned)
+    if parsed.scheme in {"https", "http"} and parsed.netloc:
+        return cleaned
+    return None
+
+
 @dataclass(frozen=True)
 class Settings:
     """Application settings for the FastAPI backend."""
 
     openai_api_key: str = field(default="", repr=False)
     openai_model: str = DEFAULT_MODEL
+    openai_base_url: str | None = None
     allowed_origins: tuple[str, ...] = DEFAULT_ALLOWED_ORIGINS
     session_secret: bytes = field(
         default_factory=lambda: secrets.token_bytes(32), repr=False
@@ -75,8 +89,19 @@ def load_settings(*, load_env_file: bool = True, env_path: Path = DEFAULT_ENV_PA
     if load_env_file and env_path.is_file():
         load_dotenv(dotenv_path=env_path, override=False)
 
-    api_key = os.getenv("OPENAI_API_KEY", "").strip()
-    model = os.getenv("OPENAI_MODEL", "").strip() or DEFAULT_MODEL
+    api_key = (os.getenv("OPENAI_API_KEY") or os.getenv("GROQ_API_KEY") or "").strip()
+    base_url = parse_base_url(os.getenv("OPENAI_BASE_URL"))
+    if api_key.startswith("gsk_") and base_url is None:
+        base_url = DEFAULT_GROQ_BASE_URL
+
+    raw_model = os.getenv("OPENAI_MODEL", "").strip()
+    if base_url == DEFAULT_GROQ_BASE_URL and (
+        not raw_model or raw_model in {"gpt-5-mini", "gpt-5-nano", "gpt-4o-mini"}
+    ):
+        model = DEFAULT_GROQ_MODEL
+    else:
+        model = raw_model or DEFAULT_MODEL
+
     raw_origins = os.getenv("ALLOWED_ORIGIN") or os.getenv("ALLOWED_ORIGINS")
     origins = list(parse_allowed_origins(raw_origins))
 
@@ -101,6 +126,7 @@ def load_settings(*, load_env_file: bool = True, env_path: Path = DEFAULT_ENV_PA
     return Settings(
         openai_api_key=api_key,
         openai_model=model,
+        openai_base_url=base_url,
         allowed_origins=tuple(origins),
         session_secret=session_secret,
     )

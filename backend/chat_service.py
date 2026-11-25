@@ -68,11 +68,15 @@ class ChatService:
         if not self._settings.openai_api_key:
             raise MissingApiKeyError()
 
-        self._client = OpenAI(
-            api_key=self._settings.openai_api_key,
-            timeout=self._settings.openai_timeout_seconds,
-            max_retries=1,
-        )
+        client_kwargs: dict[str, Any] = {
+            "api_key": self._settings.openai_api_key,
+            "timeout": self._settings.openai_timeout_seconds,
+            "max_retries": 1,
+        }
+        if self._settings.openai_base_url:
+            client_kwargs["base_url"] = self._settings.openai_base_url
+
+        self._client = OpenAI(**client_kwargs)
         return self._client
 
     def generate_reply(
